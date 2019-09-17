@@ -1,0 +1,29 @@
+---
+title: "Music Insights"
+author: "Olivia Abbott"
+output: html_notebook
+---
+
+Tidyverse handles data importing and wrangling:
+
+```{r}
+install.packages("tidyverse")
+library("tidyverse")
+```
+
+When importing data use relative paths instead of absolute paths. Use paths reletive to the directory this file is in.
+
+```{r}
+survey <- read_csv("https://raw.githubusercontent.com/introdsci/MusicSurvey/master/music-survey.csv")
+preferences <- read_csv("https://raw.githubusercontent.com/introdsci/MusicSurvey/master/preferences-survey.csv")
+
+nrow(survey)
+nrow(preferences)
+```
+
+Cleaning data column names:
+
+```{r}
+colnames(survey)[colnames(survey) == "First, we are going to create a pseudonym for you to keep this survey anonymous (more or less). Which pseudonym generator would you prefer?"] <- "generator_name"
+colnames(survey)[colnames(survey) == "What is your pseudonym?"] <- "pseudonym"
+```
