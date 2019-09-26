@@ -6,9 +6,14 @@ output: html_notebook
 
 Tidyverse handles data importing and wrangling:
 
+We also need to load the librarys dplyr and tidyr:
+
 ```{r}
 install.packages("tidyverse")
 library("tidyverse")
+
+library("dplyr")
+library("tidyr")
 ```
 
 When importing data use relative paths instead of absolute paths. Use paths reletive to the directory this file is in.
@@ -24,7 +29,6 @@ nrow(preferences)
 Cleaning data column names so that they have a consistant format for the survey table:
 
 ```{r}
-colnames(survey)
 colnames(survey)[colnames(survey) == "First, we are going to create a pseudonym for you to keep this survey anonymous (more or less). Which pseudonym generator would you prefer?"] <- "psuedonym_generator"
 colnames(survey)[colnames(survey) == "What is your pseudonym?"] <- "pseudonym"
 colnames(survey)[colnames(survey) == "Sex"] <- "sex"
@@ -34,15 +38,8 @@ colnames(survey)[colnames(survey) == "Year you were born (YYYY)"] <- "year_born"
 colnames(survey)[colnames(survey) == "Which musical instruments/talents do you play? (Select all that apply)"] <- "instrument_list"
 colnames(survey)[colnames(survey) == "Artist"] <- "favorite_song_artist"
 colnames(survey)[colnames(survey) == "Song"] <- "favorite_song"
-colnames(survey)[colnames(survey) == "Link to song (on Youtube or Vimeo)"] <- "facorite_song_link"
-
-?strsplit
-```
-
-Cleaning data column names so that they have a consistant format for the preferences table:
-
-```{r}
-
+colnames(survey)[colnames(survey) == "Link to song (on Youtube or Vimeo)"] <- "favorite_song_link"
+colnames(survey)
 ```
 
 
@@ -52,7 +49,27 @@ Tidy data:
   2. Favorite Song
   3. Song Ratings
   4. Musical Talents
+
+
+To create the person data frame:
+
+```{r}
+person <- tibble(pseudonym = survey$pseudonym, sex = survey$sex, academic_major = survey$academic_major, academic_level = survey$academic_level, year_born = survey$year_born)
+```
+
+To create the favarite song data frame:
+
+```{r}
+favorite_song <- tibble(pseudonym = survey$pseudonym, favorite_song = survey$favorite_song, favorite_song_artist = survey$favorite_song_artist, favorite_song_link = survey$favorite_song_link)
+```
+
   
+Cleaning data column names so that they have a consistant format for the preferences table:
+
+```{r}
+
+```
+
 
   
   
