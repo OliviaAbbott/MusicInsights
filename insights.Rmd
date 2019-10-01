@@ -29,6 +29,7 @@ nrow(preferences)
 Cleaning data column names so that they have a consistant format for the survey table:
 
 ```{r}
+colnames(survey)[colnames(survey) == "Timestamp"] <- "time_submitted"
 colnames(survey)[colnames(survey) == "First, we are going to create a pseudonym for you to keep this survey anonymous (more or less). Which pseudonym generator would you prefer?"] <- "psuedonym_generator"
 colnames(survey)[colnames(survey) == "What is your pseudonym?"] <- "pseudonym"
 colnames(survey)[colnames(survey) == "Sex"] <- "sex"
@@ -42,7 +43,6 @@ colnames(survey)[colnames(survey) == "Link to song (on Youtube or Vimeo)"] <- "f
 colnames(survey)
 ```
 
-
 Tidy data:
   We want to split our two tables into 4 tables:
   1. Person
@@ -54,13 +54,22 @@ Tidy data:
 To create the person data frame:
 
 ```{r}
-person <- tibble(pseudonym = survey$pseudonym, sex = survey$sex, academic_major = survey$academic_major, academic_level = survey$academic_level, year_born = survey$year_born)
+person <- tibble(time_submitted = survey$time_submitted, pseudonym_generator = survey$psuedonym_generator, pseudonym = survey$pseudonym, sex = survey$sex, academic_major = survey$academic_major, academic_level = survey$academic_level, year_born = survey$year_born)
 ```
 
 To create the favarite song data frame:
 
 ```{r}
-favorite_song <- tibble(pseudonym = survey$pseudonym, favorite_song = survey$favorite_song, favorite_song_artist = survey$favorite_song_artist, favorite_song_link = survey$favorite_song_link)
+favorite_song <- tibble(pseudonym = survey$pseudonym, song = survey$favorite_song, artist = survey$favorite_song_artist, link = survey$favorite_song_link)
+```
+
+Cleaning the date data so that it is formatted to the POSIXlt format:
+
+```{r}
+library('readr')
+?parse_datetime
+
+person$time_submitted <- as.POSIXlt(parse_datetime(person$time_submitted, format = "%m/%d/%y %H:%M"))
 ```
 
   
