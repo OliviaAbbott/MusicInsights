@@ -25,6 +25,7 @@ preferences <- read_csv("https://raw.githubusercontent.com/introdsci/MusicSurvey
 nrow(survey)
 nrow(preferences)
 ```
+Data Cleaning for survey:
 
 Cleaning data column names so that they have a consistant format for the survey table:
 
@@ -72,15 +73,47 @@ library('readr')
 person$time_submitted <- as.POSIXlt(parse_datetime(person$time_submitted, format = "%m/%d/%y %H:%M"))
 ```
 
-  
+Cleaning data so that categorical data is represented as factors:
+(only use as.factor on categorical data)
+
+```{r}
+person$academic_level <- as.factor(person$academic_level)
+levels(person$academic_level)
+
+person$academic_major <- as.factor(person$academic_major)
+levels(person$academic_major)
+# there is an issue with this one since there are different capilalizations of computer information systema
+# we need to change the levels so that they are the same category
+# change computer information system value
+# eliminate other levels so that there is only one computer information systems value
+levels(person$academic_major)[levels(person$academic_major) == "Computer information systems"] <-  "Computer Information Systems"
+# eliminate other levels so that there is only one computer information systems value
+levels(person$academic_major)
+
+```
+Data cleaning for preferences:
+
 Cleaning data column names so that they have a consistant format for the preferences table:
 
 ```{r}
-
+colnames(preferences)[colnames(preferences) == "Timestamp"] <- "time_submitted"
+colnames(preferences)[colnames(preferences) == "What was your pseudonym?"] <- "pseudonym"
 ```
 
+Create Ratings table from the preferences table to make data tidy:
 
-  
+```{r}
+?gather
+preferences <-  gather(preferences, key = "artist_song", value = "rating", -time_submitted, -pseudonym)
+ratings <- tibble(time_submitted = preferences$time_submitted, psuedonym = preferences$pseudonym, artist_song = preferences$artist_song, rating = preferences$rating)
+```
+
+Cleaning the date data so that it is formatted to the POSIXlt format:
+
+```{r}
+ratings$time_submitted <- as.POSIXlt(parse_datetime(ratings$time_submitted, format = "%m/%d/%y %H:%M"))
+```
+
   
   
   
