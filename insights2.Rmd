@@ -1,0 +1,53 @@
+---
+title: "Music Insights Part 2"
+author: "Olivia Abbott"
+date: "11/14/2019"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("tidyverse")
+include("knitr")
+purl("insights.Rmd", output = "part1.r")
+source("part1.r")
+```
+
+We are first going to add a continuous variable to our person table.  This variable is going to hold each person's average rating on all of the songs that they rated.  We use the aggregate function to collect the mean for each persons ratings.  This information is stored in a table called df which we then join with our current person table.
+
+```{r}
+df <- aggregate(ratings$rating, list(pseudonym = ratings$pseudonym), FUN=function(x) mean(as.numeric(x)))
+colnames(df)[colnames(df) == "x"] <- "average_rating"
+person <- left_join(person, df, by = "pseudonym")
+```
+
+We are next going to create a model to predict each person's average rating. We need to load the caret library in order to create our model.
+
+The first step is that we need to remove any people from our person table that have a NA value for the average rating.  I create the person_info table to hold the person data without any NA values for average rating.  We then split the data into a train and test set.  Then we creat the model using the train dataset.  We are then able to create a prediction using our model and the test set.
+
+```{r}
+library(caret)
+#person$time_submitted <- as.POSIXct(person$time_submitted)
+person_info <- as_tibble(person) %>% subset(!is.na(average_rating))
+as.table(as.matrix(person_info))
+set.seed(125)
+sample_selection <- createDataPartition(person_info$average_rating, p = 0.75, list = FALSE)
+person_train <- person_info[sample_selection, ]
+person_test <- person_info[-sample_selection, ]
+
+person_train_model <- lm(person_train, formula = average_rating ~ sex + academic_major + academic_level + year_born)
+summary(person_train_model)
+
+prediction <- person_train_model %>% predict(person_test)
+
+R2(prediction, person_test$average_rating)
+MAE(prediction, person_test$average_rating)
+RMSE(prediction, person_test$average_rating)
+
+ggplot(person_test, aes(x = prediction, y = average_rating)) + geom_point()
+```
+

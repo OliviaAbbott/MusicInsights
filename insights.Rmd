@@ -9,11 +9,18 @@ Tidyverse handles data importing and wrangling:
 We also need to load the librarys dplyr and tidyr:
 
 ```{r}
-install.packages("tidyverse")
-library("tidyverse")
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name)
+  library(library_name, character.only=TRUE)
+}
 
-library("dplyr")
-library("tidyr")
+include("tidyverse")
+
+#install.packages("tidyverse")
+#library("tidyverse")
+#library("dplyr")
+#library("tidyr")
 ```
 
 When importing data use relative paths instead of absolute paths. Use paths reletive to the directory this file is in.
@@ -30,6 +37,12 @@ Data Cleaning for survey:
 Cleaning data column names so that they have a consistant format for the survey table:
 
 ```{r}
+#rename_column <- function(data_frame, column_name, new_name){
+#  colnames(data_frame)[colnames(data_frame) == column_name] <- new_name
+#  } 
+# this function won't change anything because we pass the dataframe by value not by reference
+# in R pass by reference is not supported
+
 colnames(survey)[colnames(survey) == "Timestamp"] <- "time_submitted"
 colnames(survey)[colnames(survey) == "First, we are going to create a pseudonym for you to keep this survey anonymous (more or less). Which pseudonym generator would you prefer?"] <- "psuedonym_generator"
 colnames(survey)[colnames(survey) == "What is your pseudonym?"] <- "pseudonym"
@@ -103,9 +116,8 @@ colnames(preferences)[colnames(preferences) == "What was your pseudonym?"] <- "p
 Create Ratings table from the preferences table to make data tidy:
 
 ```{r}
-?gather
 preferences <-  gather(preferences, key = "artist_song", value = "rating", -time_submitted, -pseudonym)
-ratings <- tibble(time_submitted = preferences$time_submitted, psuedonym = preferences$pseudonym, artist_song = preferences$artist_song, rating = preferences$rating)
+ratings <- tibble(time_submitted = preferences$time_submitted, pseudonym = preferences$pseudonym, artist_song = preferences$artist_song, rating = preferences$rating)
 ```
 
 Cleaning the date data so that it is formatted to the POSIXlt format:
@@ -114,11 +126,56 @@ Cleaning the date data so that it is formatted to the POSIXlt format:
 ratings$time_submitted <- as.POSIXlt(parse_datetime(ratings$time_submitted, format = "%m/%d/%y %H:%M"))
 ```
 
-  
-  
-  
-  
-  
-  
-  
-  
+Cleaning data so that categorical data is represented as factors:
+(only use as.factor on categorical data)
+
+```{r}
+ratings$rating <- as.factor(ratings$rating)
+levels(ratings$rating)
+```
+
+
+
+
+```{r}
+ratings$artist_song <- as.factor(ratings$artist_song)
+levels(ratings$artist_song)
+
+ratings$pseudonym <- as.factor(ratings$pseudonym)
+favorite_song$pseudonym <- as.factor(favorite_song$pseudonym)
+levels(favorite_song$pseudonym)
+levels(ratings$pseudonym)
+
+
+#separate(ratings, artist_song, "song", sep = "([^\t]+)")
+
+#left_join <- left_join(favorite_song, ratings, by = "pseudonym")
+#right_join <- right_join(favorite_song, ratings, by = "pseudonym")
+#full_join <- full_join(favorite_song, ratings, by = "pseudonym")
+#inner_join <- inner_join(favorite_song, ratings, by = "pseudonym")
+
+```
+
+```{r}
+talents <- tibble(pseudonym = survey$pseudonym, instruments = survey$instrument_list)
+talents <- separate_rows(talents, -pseudonym, sep = ",")
+talents$instruments <- talents$instruments %>%
+                        trimws() %>%
+                        tolower() %>%
+                        str_replace_all(pattern = ".*piano.*", "piano") %>%
+                        str_replace_all(patter = ".*ukulele.*", "ukulele") %>%
+                        as.factor()
+```
+
+
+
+Visualizations:
+
+```{r}
+library("ggplot2")
+
+ggplot(person, aes(year_born)) + geom_density()
+ggplot(person, aes(year_born)) + geom_histogram(binwidth = 1)
+ggplot(person, aes(year_born)) + geom_bar()
+```
+
