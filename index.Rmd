@@ -1,0 +1,11 @@
+---
+title: "CSCI 385 - Music Insights"
+author: "Olivia Abbott"
+date: "11/19/2019"
+output: html_document
+---
+
+
+[Link](insights.html) to Music Insights Part 1.
+
+[Link](insights2.html) to Music Insights Part 2.

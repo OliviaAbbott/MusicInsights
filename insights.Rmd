@@ -1,7 +1,9 @@
 ---
 title: "Music Insights"
 author: "Olivia Abbott"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 Tidyverse handles data importing and wrangling:
