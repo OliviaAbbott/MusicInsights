@@ -50,3 +50,4 @@ RMSE(prediction, person_test$average_rating)
 ggplot(person_test, aes(x = prediction, y = average_rating)) + geom_point()
 ```
 
+From the results of our training model you can see that the p value is very high (0.7487) which means that the variables we created our model with are not good variables to use to predict the person's average rating.
